@@ -8,8 +8,6 @@ module "gitops_service_account" {
   application_repo = module.gitops.application_repo
   application_token = module.gitops.application_token
   application_paths = module.gitops.application_paths
-  service_account_namespace = "openshift-gitops"
-  service_account_name      = "argocd-cluster-argocd-application-controller"
   namespace = module.gitops_namespace.name
   name = "test-sa"
 }
