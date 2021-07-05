@@ -1,5 +1,9 @@
-#output "myoutput" {
-#  description = "Description of my output"
-#  value       = "value"
-#  depends_on  = [<some resource>]
-#}
+output "name" {
+  value = var.name
+  depends_on = [null_resource.setup_argocd]
+}
+
+output "namespace" {
+  value = var.namespace
+  depends_on = [null_resource.setup_argocd]
+}
