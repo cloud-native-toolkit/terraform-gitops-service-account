@@ -10,7 +10,9 @@ APPLICATION_GIT_PATH="$5"
 NAMESPACE="$6"
 BRANCH="$7"
 
-REPO_DIR=".tmprepo-dashboard-${NAMESPACE}"
+APPLICATION_REPO_URL="https://${APPLICATION_REPO}"
+
+REPO_DIR=".tmprepo-sa-${NAMESPACE}"
 
 SEMAPHORE="${REPO//\//-}.semaphore"
 SEMAPHORE_ID="${SCRIPT_DIR//\//-}"
@@ -46,11 +48,11 @@ git clone "https://${TOKEN}@${REPO}" "${REPO_DIR}"
 
 cd "${REPO_DIR}" || exit 1
 
-cat > "${REPO_PATH}/dashboard.yaml" <<EOL
+cat > "${REPO_PATH}/namespace-${NAMESPACE}.yaml" <<EOL
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: dashboard-${BRANCH}
+  name: namespace-${NAMESPACE}-${BRANCH}
 spec:
   destination:
     namespace: ${NAMESPACE}
@@ -58,7 +60,7 @@ spec:
   project: ${PROJECT}
   source:
     path: ${APPLICATION_GIT_PATH}
-    repoURL: https://${APPLICATION_REPO}
+    repoURL: ${APPLICATION_REPO_URL}
     targetRevision: ${BRANCH}
   syncPolicy:
     automated:
@@ -68,7 +70,7 @@ EOL
 
 if [[ $(git status --porcelain | wc -l) -gt 0 ]]; then
   git add .
-  git commit -m "Adds argocd config for dashboard"
+  git commit -m "Adds infrastucture config for resources (e.g. sa or rbac) in ${NAMESPACE} namespace"
   git push
 fi
 

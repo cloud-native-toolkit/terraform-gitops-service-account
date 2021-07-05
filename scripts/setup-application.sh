@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 
-SCRIPT_DIR=$(cd $(dirname $0); pwd -P)
+SCRIPT_DIR=$(cd $(dirname "$0"); pwd -P)
 
 REPO="$1"
 REPO_PATH="$2"
 NAMESPACE="$3"
-VALUES_CONTENT="$4"
+LABEL="$4"
 
-REPO_DIR=".tmprepo-${NAMESPACE}"
+echo "Path: ${REPO_PATH}"
+
+REPO_DIR=".tmprepo-sa-${NAMESPACE}"
 
 SEMAPHORE="${REPO//\//-}.semaphore"
 SEMAPHORE_ID="${SCRIPT_DIR//\//-}"
@@ -45,10 +47,15 @@ cd "${REPO_DIR}" || exit 1
 
 mkdir -p "${REPO_PATH}"
 
-# insert logic here
+cat > "${REPO_PATH}/${LABEL}-sa.yaml" <<EOL
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ${LABEL}
+EOL
 
 git add .
-git commit -m "Adds config for Dashboard"
+git commit -m "Adds config for '$LABEL' service account '$NAMESPACE' namespace"
 git push
 
 cd ..
