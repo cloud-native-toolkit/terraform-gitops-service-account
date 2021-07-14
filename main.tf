@@ -1,27 +1,38 @@
 locals {
   layer = "infrastructure"
-  config_project = var.config_projects[local.layer]
+  layer_config = var.gitops_config[local.layer]
   application_branch = "main"
-  application_repo_path = "${var.application_paths[local.layer]}/namespace/${var.namespace}"
+  config_namespace = "default"
+  yaml_dir = "${path.cwd}/.tmp/sa-${var.name}"
 }
 
-resource null_resource setup_application {
+resource null_resource create_yaml {
   provisioner "local-exec" {
-    command = "${path.module}/scripts/setup-application.sh '${var.application_repo}' '${local.application_repo_path}' '${var.namespace}' '${var.name}'"
+    command = "${path.module}/scripts/create-yaml.sh '${local.yaml_dir}/namespace/${var.namespace}' '${var.name}'"
+  }
+}
+
+resource null_resource setup_gitops {
+  depends_on = [null_resource.create_yaml]
+
+  provisioner "local-exec" {
+    command = "${path.module}/scripts/setup-gitops.sh '${var.name}' '${local.yaml_dir}' 'namespace/${var.namespace}' '${local.application_branch}' '${var.namespace}'"
 
     environment = {
-      TOKEN = var.application_token
+      GIT_CREDENTIALS = jsonencode(var.git_credentials)
+      GITOPS_CONFIG = jsonencode(local.layer_config)
     }
   }
 }
 
-resource null_resource setup_argocd {
-  depends_on = [null_resource.setup_application]
-  provisioner "local-exec" {
-    command = "${path.module}/scripts/setup-argocd.sh '${var.config_repo}' '${var.config_paths[local.layer]}' '${local.config_project}' '${var.application_repo}' '${local.application_repo_path}' '${var.namespace}' '${local.application_branch}'"
+module "rbac" {
+  source = "github.com/cloud-native-toolkit/terraform-gitops-rbac.git"
+  depends_on = [null_resource.setup_gitops]
 
-    environment = {
-      TOKEN = var.config_token
-    }
-  }
+  gitops_config             = var.gitops_config
+  git_credentials           = var.git_credentials
+  service_account_namespace = var.namespace
+  service_account_name      = var.name
+  namespace                 = var.namespace
+  rules                     = var.rbac_rules
 }
