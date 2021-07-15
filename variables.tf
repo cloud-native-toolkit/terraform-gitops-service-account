@@ -81,3 +81,9 @@ variable "rbac_rules" {
   description = "Rules for rbac rules"
   default     = []
 }
+
+variable "sccs" {
+  type        = list(string)
+  description = "The list of sccs that should be generated for the service account (valid values are anyuid and privileged)"
+  default     = []
+}
