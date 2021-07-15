@@ -3,12 +3,12 @@ locals {
   layer_config = var.gitops_config[local.layer]
   application_branch = "main"
   config_namespace = "default"
-  yaml_dir = "${path.cwd}/.tmp/sa-${var.name}"
+  yaml_dir = "${path.cwd}/.tmp/sa-${var.name}/namespace/${var.namespace}"
 }
 
 resource null_resource create_yaml {
   provisioner "local-exec" {
-    command = "${path.module}/scripts/create-yaml.sh '${local.yaml_dir}/namespace/${var.namespace}' '${var.name}'"
+    command = "${path.module}/scripts/create-yaml.sh '${local.yaml_dir}' '${var.name}'"
   }
 }
 
