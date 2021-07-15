@@ -38,7 +38,7 @@ module "rbac" {
 }
 
 module "sccs" {
-  source = "github.com/cloud-native-toolkit/terraform-gitops-sccs.git?ref=v1.0.1"
+  source = "github.com/cloud-native-toolkit/terraform-gitops-sccs.git?ref=v1.0.2"
   depends_on = [null_resource.setup_gitops]
 
   gitops_config = var.gitops_config
