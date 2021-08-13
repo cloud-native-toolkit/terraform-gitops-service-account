@@ -85,6 +85,122 @@ versions:
               token = string
             }))
         description: The credentials for the gitops repo(s)
+      - name: server_name
+        moduleRef:
+          id: gitops
+          output: server_name
+        type: string
+        description: The cluster where the application will be provisioned
+        default: default
+        optional: true
+      - name: namespace
+        moduleRef:
+          id: namespace
+          output: name
+        type: string
+        description: The namespace where the application should be deployed
+      - name: name
+        type: string
+        description: The name of the service account that should be created
+      - name: rbac_rules
+        type: |-
+          list(object({
+              apiGroups = list(string)
+              resources = list(string)
+              verbs     = list(string)
+            }))
+        description: Rules for rbac rules
+        default: []
+        optional: true
+      - name: sccs
+        type: list(string)
+        description: The list of sccs that should be generated for the service account (valid values are anyuid and privileged)
+        default: []
+        optional: true
+    version: v1.3.0
+    outputs:
+      - name: name
+        description: output "name" {   value = var.name   depends_on = [null_resource.setup_gitops] }
+      - name: namespace
+        description: output "namespace" {   value = var.namespace   depends_on = [null_resource.setup_gitops] }
+  - platforms: []
+    dependencies:
+      - id: gitops
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
+            version: ">= 1.1.0"
+      - id: namespace
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
+            version: ">= 1.0.0"
+    variables:
+      - name: gitops_config
+        moduleRef:
+          id: gitops
+          output: gitops_config
+        type: |-
+          object({
+              boostrap = object({
+                argocd-config = object({
+                  project = string
+                  repo = string
+                  url = string
+                  path = string
+                })
+              })
+              infrastructure = object({
+                argocd-config = object({
+                  project = string
+                  repo = string
+                  url = string
+                  path = string
+                })
+                payload = object({
+                  repo = string
+                  url = string
+                  path = string
+                })
+              })
+              services = object({
+                argocd-config = object({
+                  project = string
+                  repo = string
+                  url = string
+                  path = string
+                })
+                payload = object({
+                  repo = string
+                  url = string
+                  path = string
+                })
+              })
+              applications = object({
+                argocd-config = object({
+                  project = string
+                  repo = string
+                  url = string
+                  path = string
+                })
+                payload = object({
+                  repo = string
+                  url = string
+                  path = string
+                })
+              })
+            })
+        description: Config information regarding the gitops repo structure
+      - name: git_credentials
+        moduleRef:
+          id: gitops
+          output: git_credentials
+        type: |-
+          list(object({
+              repo = string
+              url = string
+              username = string
+              token = string
+            }))
+        description: The credentials for the gitops repo(s)
       - name: namespace
         moduleRef:
           id: namespace
