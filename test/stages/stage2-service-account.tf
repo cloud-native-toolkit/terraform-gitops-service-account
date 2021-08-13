@@ -3,7 +3,7 @@ module "gitops_service_account" {
 
   gitops_config = module.gitops.gitops_config
   git_credentials = module.gitops.git_credentials
-  namespace = module.gitops_namespace.name
+  namespace = var.namespace
   name = "test-sa"
   rbac_rules = [{
     apiGroups = ["*"]
@@ -11,4 +11,5 @@ module "gitops_service_account" {
     verbs     = ["*"]
   }]
   sccs = ["anyuid","privileged"]
+  server_name = module.gitops.server_name
 }

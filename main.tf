@@ -1,9 +1,18 @@
 locals {
+  bin_dir = "${path.cwd}/bin"
   layer = "infrastructure"
-  layer_config = var.gitops_config[local.layer]
-  application_branch = "main"
-  config_namespace = "default"
   yaml_dir = "${path.cwd}/.tmp/sa-${var.name}/namespace/${var.namespace}"
+  name = "${var.name}-sa"
+}
+
+resource null_resource setup_binaries {
+  provisioner "local-exec" {
+    command = "${path.module}/scripts/setup-binaries.sh"
+
+    environment = {
+      BIN_DIR = local.bin_dir
+    }
+  }
 }
 
 resource null_resource create_yaml {
@@ -16,17 +25,17 @@ resource null_resource setup_gitops {
   depends_on = [null_resource.create_yaml]
 
   provisioner "local-exec" {
-    command = "${path.module}/scripts/setup-gitops.sh '${var.name}' '${local.yaml_dir}' 'namespace/${var.namespace}' '${local.application_branch}' '${var.namespace}'"
+    command = "$(command -v igc || command -v ${local.bin_dir}/igc) gitops-module '${local.name}' -n '${var.namespace}' --contentDir '${local.yaml_dir}' --serverName '${var.server_name}' -l '${local.layer}'"
 
     environment = {
-      GIT_CREDENTIALS = jsonencode(var.git_credentials)
-      GITOPS_CONFIG = jsonencode(local.layer_config)
+      GIT_CREDENTIALS = yamlencode(var.git_credentials)
+      GITOPS_CONFIG   = yamlencode(var.gitops_config)
     }
   }
 }
 
 module "rbac" {
-  source = "github.com/cloud-native-toolkit/terraform-gitops-rbac.git?ref=v1.4.0"
+  source = "github.com/cloud-native-toolkit/terraform-gitops-rbac.git?ref=v1.6.0"
   depends_on = [null_resource.setup_gitops]
 
   gitops_config             = var.gitops_config
@@ -35,10 +44,11 @@ module "rbac" {
   service_account_name      = var.name
   namespace                 = var.namespace
   rules                     = var.rbac_rules
+  server_name               = var.server_name
 }
 
 module "sccs" {
-  source = "github.com/cloud-native-toolkit/terraform-gitops-sccs.git?ref=v1.0.2"
+  source = "github.com/cloud-native-toolkit/terraform-gitops-sccs.git?ref=v1.1.1"
   depends_on = [null_resource.setup_gitops]
 
   gitops_config = var.gitops_config
@@ -46,4 +56,5 @@ module "sccs" {
   namespace = var.namespace
   service_account = var.name
   sccs = var.sccs
+  server_name = var.server_name
 }
