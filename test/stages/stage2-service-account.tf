@@ -11,5 +11,5 @@ module "gitops_service_account" {
     verbs     = ["*"]
   }]
   sccs = ["anyuid","privileged"]
-  serverName = module.gitops.serverName
+  server_name = module.gitops.server_name
 }

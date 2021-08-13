@@ -88,7 +88,7 @@ variable "sccs" {
   default     = []
 }
 
-variable "serverName" {
+variable "server_name" {
   type        = string
   description = "The cluster where the application will be provisioned"
   default     = "default"
