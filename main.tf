@@ -44,7 +44,7 @@ module "rbac" {
   service_account_name      = var.name
   namespace                 = var.namespace
   rules                     = var.rbac_rules
-  serverName                = var.server_name
+  server_name               = var.server_name
 }
 
 module "sccs" {
