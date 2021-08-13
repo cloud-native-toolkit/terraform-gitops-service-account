@@ -87,3 +87,9 @@ variable "sccs" {
   description = "The list of sccs that should be generated for the service account (valid values are anyuid and privileged)"
   default     = []
 }
+
+variable "serverName" {
+  type        = string
+  description = "The cluster where the application will be provisioned"
+  default     = "default"
+}

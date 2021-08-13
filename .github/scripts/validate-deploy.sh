@@ -11,7 +11,31 @@ cd .testrepo || exit 1
 
 find . -name "*"
 
-# Insert tests here
+NAMESPACE="gitops-service-account"
+SERVICE_ACCOUNT="test-sa"
+NAME="${SERVICE_ACCOUNT}-sa"
+SERVER_NAME="default"
+
+if [[ ! -f "payload/1-infrastructure/namespace/${NAMESPACE}/${NAME}/${NAME}.yaml" ]]; then
+  echo "Payload missing: payload/1-infrastructure/namespace/${NAMESPACE}/${NAME}/${NAME}.yaml"
+  exit 1
+fi
+
+cat "payload/1-infrastructure/namespace/${NAMESPACE}/${NAME}/${NAME}.yaml"
+
+if [[ ! -f "argocd/1-infrastructure/cluster/${SERVER_NAME}/base/${NAMESPACE}-${NAME}.yaml" ]]; then
+  echo "Argocd config missing: argocd/1-infrastructure/cluster/${SERVER_NAME}/base/${NAMESPACE}-${NAME}.yaml"
+  exit 1
+fi
+
+cat "argocd/1-infrastructure/cluster/${SERVER_NAME}/base/${NAMESPACE}-${NAME}.yaml"
+
+if [[ ! -f "argocd/1-infrastructure/cluster/${SERVER_NAME}/kustomization.yaml" ]]; then
+  echo "Argocd config missing: argocd/1-infrastructure/cluster/${SERVER_NAME}/kustomization.yaml"
+  exit 1
+fi
+
+cat "argocd/1-infrastructure/cluster/${SERVER_NAME}/kustomization.yaml"
 
 cd ..
 rm -rf .testrepo
