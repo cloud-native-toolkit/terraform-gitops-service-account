@@ -1,18 +1,12 @@
 locals {
-  bin_dir = "${path.cwd}/bin"
+  bin_dir  = module.setup_clis.bin_dir
   layer = "infrastructure"
   yaml_dir = "${path.cwd}/.tmp/sa-${var.name}/namespace/${var.namespace}"
   name = "${var.name}-sa"
 }
 
-resource null_resource setup_binaries {
-  provisioner "local-exec" {
-    command = "${path.module}/scripts/setup-binaries.sh"
-
-    environment = {
-      BIN_DIR = local.bin_dir
-    }
-  }
+module setup_clis {
+  source = "github.com/cloud-native-toolkit/terraform-util-clis.git"
 }
 
 resource null_resource create_yaml {
@@ -25,7 +19,7 @@ resource null_resource setup_gitops {
   depends_on = [null_resource.create_yaml]
 
   provisioner "local-exec" {
-    command = "$(command -v igc || command -v ${local.bin_dir}/igc) gitops-module '${local.name}' -n '${var.namespace}' --contentDir '${local.yaml_dir}' --serverName '${var.server_name}' -l '${local.layer}'"
+    command = "${local.bin_dir}/igc gitops-module '${local.name}' -n '${var.namespace}' --contentDir '${local.yaml_dir}' --serverName '${var.server_name}' -l '${local.layer}'"
 
     environment = {
       GIT_CREDENTIALS = yamlencode(var.git_credentials)
@@ -35,7 +29,7 @@ resource null_resource setup_gitops {
 }
 
 module "rbac" {
-  source = "github.com/cloud-native-toolkit/terraform-gitops-rbac.git?ref=v1.6.0"
+  source = "github.com/cloud-native-toolkit/terraform-gitops-rbac.git?ref=v1.6.1"
   depends_on = [null_resource.setup_gitops]
 
   gitops_config             = var.gitops_config
@@ -48,7 +42,7 @@ module "rbac" {
 }
 
 module "sccs" {
-  source = "github.com/cloud-native-toolkit/terraform-gitops-sccs.git?ref=v1.1.1"
+  source = "github.com/cloud-native-toolkit/terraform-gitops-sccs.git?ref=v1.1.3"
   depends_on = [null_resource.setup_gitops]
 
   gitops_config = var.gitops_config
