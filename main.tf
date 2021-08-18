@@ -22,14 +22,14 @@ resource null_resource setup_gitops {
     command = "${local.bin_dir}/igc gitops-module '${local.name}' -n '${var.namespace}' --contentDir '${local.yaml_dir}' --serverName '${var.server_name}' -l '${local.layer}'"
 
     environment = {
-      GIT_CREDENTIALS = yamlencode(var.git_credentials)
+      GIT_CREDENTIALS = yamlencode(nonsensitive(var.git_credentials))
       GITOPS_CONFIG   = yamlencode(var.gitops_config)
     }
   }
 }
 
 module "rbac" {
-  source = "github.com/cloud-native-toolkit/terraform-gitops-rbac.git?ref=v1.6.1"
+  source = "github.com/cloud-native-toolkit/terraform-gitops-rbac.git?ref=debug"
   depends_on = [null_resource.setup_gitops]
 
   gitops_config             = var.gitops_config
@@ -42,7 +42,7 @@ module "rbac" {
 }
 
 module "sccs" {
-  source = "github.com/cloud-native-toolkit/terraform-gitops-sccs.git?ref=v1.1.4"
+  source = "github.com/cloud-native-toolkit/terraform-gitops-sccs.git?ref=debug"
   depends_on = [null_resource.setup_gitops]
 
   gitops_config = var.gitops_config
