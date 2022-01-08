@@ -88,6 +88,12 @@ variable "sccs" {
   default     = []
 }
 
+variable "pull_secrets" {
+  type        = list(string)
+  description = "The list of pull secrets that should be linked to the service account"
+  default     = []
+}
+
 variable "server_name" {
   type        = string
   description = "The cluster where the application will be provisioned"
