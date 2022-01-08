@@ -11,7 +11,11 @@ module setup_clis {
 
 resource null_resource create_yaml {
   provisioner "local-exec" {
-    command = "${path.module}/scripts/create-yaml.sh '${local.yaml_dir}' '${var.name}'"
+    command = "${path.module}/scripts/create-yaml.sh '${local.yaml_dir}' '${var.name}' '${jsonencode(var.pull_secrets)}'"
+
+    environment = {
+      BIN_DIR = module.setup_clis.bin_dir
+    }
   }
 }
 

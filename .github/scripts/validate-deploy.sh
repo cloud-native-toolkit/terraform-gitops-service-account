@@ -3,6 +3,8 @@
 GIT_REPO=$(cat git_repo)
 GIT_TOKEN=$(cat git_token)
 
+export KUBECONFIG=$(cat .kubeconfig)
+
 mkdir -p .testrepo
 
 git clone https://${GIT_TOKEN}@${GIT_REPO} .testrepo
@@ -39,3 +41,12 @@ cat "argocd/1-infrastructure/cluster/${SERVER_NAME}/kustomization.yaml"
 
 cd ..
 rm -rf .testrepo
+
+PULL_SECRETS=$(kubectl get sa -n "${NAMESPACE}" "${NAME}" -o yaml | ./bin_dir2/yq4 e -o json '.imagePullSecrets' -)
+
+if [[ -z "${PULL_SECRETS}" ]]; then
+  echo "No pull secrets"
+  exit 1
+fi
+
+echo "Pull secrets: ${PULL_SECRETS}"

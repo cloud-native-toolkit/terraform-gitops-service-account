@@ -12,4 +12,5 @@ module "gitops_service_account" {
   }]
   sccs = ["anyuid","privileged"]
   server_name = module.gitops.server_name
+  pull_secrets = ["test"]
 }
