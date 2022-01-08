@@ -42,7 +42,7 @@ cat "argocd/1-infrastructure/cluster/${SERVER_NAME}/kustomization.yaml"
 cd ..
 rm -rf .testrepo
 
-PULL_SECRETS=$(kubectl get sa -n "${NAMESPACE}" "${NAME}" -o yaml | ./bin_dir2/yq4 e -o json '.imagePullSecrets' -)
+PULL_SECRETS=$(kubectl get sa -n "${NAMESPACE}" "${NAME}" -o yaml | yq e -o json '.imagePullSecrets' -)
 
 if [[ -z "${PULL_SECRETS}" ]]; then
   echo "No pull secrets"
