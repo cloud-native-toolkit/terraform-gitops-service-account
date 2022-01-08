@@ -4,6 +4,7 @@ GIT_REPO=$(cat git_repo)
 GIT_TOKEN=$(cat git_token)
 
 export KUBECONFIG=$(cat .kubeconfig)
+BIN_DIR=$(cat .bin_dir)
 
 mkdir -p .testrepo
 
@@ -42,7 +43,14 @@ cat "argocd/1-infrastructure/cluster/${SERVER_NAME}/kustomization.yaml"
 cd ..
 rm -rf .testrepo
 
-PULL_SECRETS=$(kubectl get sa -n "${NAMESPACE}" "${NAME}" -o yaml | yq e -o json '.imagePullSecrets' -)
+count=0
+until kubectl get namespace "${NAMESPACE}" 1> /dev/null 2> /dev/null || [[ $count -eq 20 ]]; do
+  echo "Waiting for namespace: ${NAMESPACE}"
+  count=$((count + 1))
+  sleep 15
+done
+
+PULL_SECRETS=$(kubectl get sa -n "${NAMESPACE}" "${NAME}" -o yaml | "${BIN_DIR}/yq4" e -o json '.imagePullSecrets' -)
 
 if [[ -z "${PULL_SECRETS}" ]]; then
   echo "No pull secrets"
