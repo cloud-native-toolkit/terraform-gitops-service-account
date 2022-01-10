@@ -14,6 +14,7 @@ JQ=$(command -v jq || command -v "${BIN_DIR}/jq")
 SA_JSON=$(echo '{"apiVersion":"v1","kind":"ServiceAccount","metadata":{}}' | "${JQ}" -c --arg NAME "${LABEL}" '.metadata.name = $NAME')
 
 if [[ -n "${PULL_SECRETS}" ]]; then
+  echo "Setting pull secrets: ${PULL_SECRETS}"
   SA_JSON=$(echo "${SA_JSON}" | "${JQ}" -c --argjson PULL_SECRETS "${PULL_SECRETS}" '.imagePullSecrets = $PULL_SECRETS')
 fi
 

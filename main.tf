@@ -3,6 +3,7 @@ locals {
   layer = "infrastructure"
   yaml_dir = "${path.cwd}/.tmp/sa-${var.name}/namespace/${var.namespace}"
   name = "${var.name}-sa"
+  pull_secret_values = [for s in var.pull_secrets: {name = s}]
 }
 
 module setup_clis {
@@ -11,7 +12,7 @@ module setup_clis {
 
 resource null_resource create_yaml {
   provisioner "local-exec" {
-    command = "${path.module}/scripts/create-yaml.sh '${local.yaml_dir}' '${var.name}' '${jsonencode(var.pull_secrets)}'"
+    command = "${path.module}/scripts/create-yaml.sh '${local.yaml_dir}' '${var.name}' '${jsonencode(local.pull_secret_values)}'"
 
     environment = {
       BIN_DIR = module.setup_clis.bin_dir
