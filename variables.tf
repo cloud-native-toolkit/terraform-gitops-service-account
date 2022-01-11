@@ -76,6 +76,7 @@ variable "rbac_rules" {
   type        = list(object({
     apiGroups = list(string)
     resources = list(string)
+    resourceNames = optional(list(string))
     verbs     = list(string)
   }))
   description = "Rules for rbac rules"
