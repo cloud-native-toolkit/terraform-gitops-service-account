@@ -9,6 +9,11 @@ module "gitops_service_account" {
     apiGroups = ["*"]
     resources = ["*"]
     verbs     = ["*"]
+  }, {
+    apiGroups = ["security.openshift.io"]
+    resources = ["securitycontextconstraints"]
+    resourceNames = ["turbonomic-t8c-operator-anyuid"]
+    verbs = ["use"]
   }]
   sccs = ["anyuid","privileged"]
   server_name = module.gitops.server_name
