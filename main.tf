@@ -44,6 +44,7 @@ module "rbac" {
   namespace                 = var.namespace
   rules                     = var.rbac_rules
   server_name               = var.server_name
+  cluster_scope             = var.rbac_cluster_scope
 }
 
 module "sccs" {

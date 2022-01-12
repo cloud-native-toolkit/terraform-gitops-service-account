@@ -15,6 +15,7 @@ module "gitops_service_account" {
     resourceNames = ["turbonomic-t8c-operator-anyuid"]
     verbs = ["use"]
   }]
+  rbac_cluster_scope = true
   sccs = ["anyuid","privileged"]
   server_name = module.gitops.server_name
   pull_secrets = ["test"]

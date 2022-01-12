@@ -83,6 +83,12 @@ variable "rbac_rules" {
   default     = []
 }
 
+variable "rbac_cluster_scope" {
+  type        = bool
+  description = "Flag indicating that RBAC should be created as ClusterRole and ClusterRoleBinding instead of Role and RoleBinding"
+  default     = false
+}
+
 variable "sccs" {
   type        = list(string)
   description = "The list of sccs that should be generated for the service account (valid values are anyuid and privileged)"
