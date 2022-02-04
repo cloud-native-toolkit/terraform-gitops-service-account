@@ -12,11 +12,135 @@ versions:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
+    variables:
+      - name: gitops_config
+        type: |-
+          object({
+              boostrap = object({
+                argocd-config = object({
+                  project = string
+                  repo = string
+                  url = string
+                  path = string
+                })
+              })
+              infrastructure = object({
+                argocd-config = object({
+                  project = string
+                  repo = string
+                  url = string
+                  path = string
+                })
+                payload = object({
+                  repo = string
+                  url = string
+                  path = string
+                })
+              })
+              services = object({
+                argocd-config = object({
+                  project = string
+                  repo = string
+                  url = string
+                  path = string
+                })
+                payload = object({
+                  repo = string
+                  url = string
+                  path = string
+                })
+              })
+              applications = object({
+                argocd-config = object({
+                  project = string
+                  repo = string
+                  url = string
+                  path = string
+                })
+                payload = object({
+                  repo = string
+                  url = string
+                  path = string
+                })
+              })
+            })
+        description: Config information regarding the gitops repo structure
+        moduleRef:
+          id: gitops
+          output: gitops_config
+      - name: git_credentials
+        type: |-
+          list(object({
+              repo = string
+              url = string
+              username = string
+              token = string
+            }))
+        description: The credentials for the gitops repo(s)
+        moduleRef:
+          id: gitops
+          output: git_credentials
+      - name: namespace
+        type: string
+        description: The namespace where the application should be deployed
+        moduleRef:
+          id: namespace
+          output: name
+      - name: name
+        type: string
+        description: The name of the service account that should be created
+      - name: rbac_rules
+        type: |-
+          list(object({
+              apiGroups = list(string)
+              resources = list(string)
+              resourceNames = optional(list(string))
+              verbs     = list(string)
+            }))
+        description: Rules for rbac rules
+        default: '[]'
+      - name: rbac_cluster_scope
+        type: bool
+        description: >-
+          Flag indicating that RBAC should be created as ClusterRole and
+          ClusterRoleBinding instead of Role and RoleBinding
+        default: false
+      - name: sccs
+        type: list(string)
+        description: >-
+          The list of sccs that should be generated for the service account
+          (valid values are anyuid and privileged)
+        default: []
+      - name: pull_secrets
+        type: list(string)
+        description: The list of pull secrets that should be linked to the service account
+        default: []
+      - name: server_name
+        type: string
+        description: The cluster where the application will be provisioned
+        default: default
+        moduleRef:
+          id: gitops
+          output: server_name
+    version: v1.7.0
+    outputs:
+      - name: name
+      - name: namespace
+  - platforms: []
+    dependencies:
+      - id: gitops
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
+            version: '>= 1.1.0'
+      - id: namespace
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
+            version: '>= 1.0.0'
     variables:
       - name: gitops_config
         moduleRef:
@@ -115,12 +239,16 @@ versions:
         optional: true
       - name: rbac_cluster_scope
         type: bool
-        description: Flag indicating that RBAC should be created as ClusterRole and ClusterRoleBinding instead of Role and RoleBinding
+        description: >-
+          Flag indicating that RBAC should be created as ClusterRole and
+          ClusterRoleBinding instead of Role and RoleBinding
         default: false
         optional: true
       - name: sccs
         type: list(string)
-        description: The list of sccs that should be generated for the service account (valid values are anyuid and privileged)
+        description: >-
+          The list of sccs that should be generated for the service account
+          (valid values are anyuid and privileged)
         default: []
         optional: true
       - name: pull_secrets
@@ -131,19 +259,23 @@ versions:
     version: v1.6.0
     outputs:
       - name: name
-        description: output "name" {   value = var.name   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "name" {   value = var.name   depends_on =
+          [null_resource.setup_gitops] }
       - name: namespace
-        description: output "namespace" {   value = var.namespace   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "namespace" {   value = var.namespace   depends_on =
+          [null_resource.setup_gitops] }
   - platforms: []
     dependencies:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
     variables:
       - name: gitops_config
         moduleRef:
@@ -242,7 +374,9 @@ versions:
         optional: true
       - name: sccs
         type: list(string)
-        description: The list of sccs that should be generated for the service account (valid values are anyuid and privileged)
+        description: >-
+          The list of sccs that should be generated for the service account
+          (valid values are anyuid and privileged)
         default: []
         optional: true
       - name: pull_secrets
@@ -253,19 +387,23 @@ versions:
     version: v1.5.0
     outputs:
       - name: name
-        description: output "name" {   value = var.name   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "name" {   value = var.name   depends_on =
+          [null_resource.setup_gitops] }
       - name: namespace
-        description: output "namespace" {   value = var.namespace   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "namespace" {   value = var.namespace   depends_on =
+          [null_resource.setup_gitops] }
   - platforms: []
     dependencies:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
     variables:
       - name: gitops_config
         moduleRef:
@@ -363,7 +501,9 @@ versions:
         optional: true
       - name: sccs
         type: list(string)
-        description: The list of sccs that should be generated for the service account (valid values are anyuid and privileged)
+        description: >-
+          The list of sccs that should be generated for the service account
+          (valid values are anyuid and privileged)
         default: []
         optional: true
       - name: pull_secrets
@@ -374,19 +514,23 @@ versions:
     version: v1.4.1
     outputs:
       - name: name
-        description: output "name" {   value = var.name   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "name" {   value = var.name   depends_on =
+          [null_resource.setup_gitops] }
       - name: namespace
-        description: output "namespace" {   value = var.namespace   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "namespace" {   value = var.namespace   depends_on =
+          [null_resource.setup_gitops] }
   - platforms: []
     dependencies:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
     variables:
       - name: gitops_config
         moduleRef:
@@ -484,7 +628,9 @@ versions:
         optional: true
       - name: sccs
         type: list(string)
-        description: The list of sccs that should be generated for the service account (valid values are anyuid and privileged)
+        description: >-
+          The list of sccs that should be generated for the service account
+          (valid values are anyuid and privileged)
         default: []
         optional: true
       - name: pull_secrets
@@ -495,19 +641,23 @@ versions:
     version: v1.4.0
     outputs:
       - name: name
-        description: output "name" {   value = var.name   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "name" {   value = var.name   depends_on =
+          [null_resource.setup_gitops] }
       - name: namespace
-        description: output "namespace" {   value = var.namespace   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "namespace" {   value = var.namespace   depends_on =
+          [null_resource.setup_gitops] }
   - platforms: []
     dependencies:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
     variables:
       - name: gitops_config
         moduleRef:
@@ -605,25 +755,31 @@ versions:
         optional: true
       - name: sccs
         type: list(string)
-        description: The list of sccs that should be generated for the service account (valid values are anyuid and privileged)
+        description: >-
+          The list of sccs that should be generated for the service account
+          (valid values are anyuid and privileged)
         default: []
         optional: true
     version: v1.3.4
     outputs:
       - name: name
-        description: output "name" {   value = var.name   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "name" {   value = var.name   depends_on =
+          [null_resource.setup_gitops] }
       - name: namespace
-        description: output "namespace" {   value = var.namespace   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "namespace" {   value = var.namespace   depends_on =
+          [null_resource.setup_gitops] }
   - platforms: []
     dependencies:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
     variables:
       - name: gitops_config
         moduleRef:
@@ -721,25 +877,31 @@ versions:
         optional: true
       - name: sccs
         type: list(string)
-        description: The list of sccs that should be generated for the service account (valid values are anyuid and privileged)
+        description: >-
+          The list of sccs that should be generated for the service account
+          (valid values are anyuid and privileged)
         default: []
         optional: true
     version: v1.3.3
     outputs:
       - name: name
-        description: output "name" {   value = var.name   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "name" {   value = var.name   depends_on =
+          [null_resource.setup_gitops] }
       - name: namespace
-        description: output "namespace" {   value = var.namespace   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "namespace" {   value = var.namespace   depends_on =
+          [null_resource.setup_gitops] }
   - platforms: []
     dependencies:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
     variables:
       - name: gitops_config
         moduleRef:
@@ -837,25 +999,31 @@ versions:
         optional: true
       - name: sccs
         type: list(string)
-        description: The list of sccs that should be generated for the service account (valid values are anyuid and privileged)
+        description: >-
+          The list of sccs that should be generated for the service account
+          (valid values are anyuid and privileged)
         default: []
         optional: true
     version: v1.3.2
     outputs:
       - name: name
-        description: output "name" {   value = var.name   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "name" {   value = var.name   depends_on =
+          [null_resource.setup_gitops] }
       - name: namespace
-        description: output "namespace" {   value = var.namespace   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "namespace" {   value = var.namespace   depends_on =
+          [null_resource.setup_gitops] }
   - platforms: []
     dependencies:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
     variables:
       - name: gitops_config
         moduleRef:
@@ -953,25 +1121,31 @@ versions:
         optional: true
       - name: sccs
         type: list(string)
-        description: The list of sccs that should be generated for the service account (valid values are anyuid and privileged)
+        description: >-
+          The list of sccs that should be generated for the service account
+          (valid values are anyuid and privileged)
         default: []
         optional: true
     version: v1.3.1
     outputs:
       - name: name
-        description: output "name" {   value = var.name   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "name" {   value = var.name   depends_on =
+          [null_resource.setup_gitops] }
       - name: namespace
-        description: output "namespace" {   value = var.namespace   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "namespace" {   value = var.namespace   depends_on =
+          [null_resource.setup_gitops] }
   - platforms: []
     dependencies:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
     variables:
       - name: gitops_config
         moduleRef:
@@ -1069,25 +1243,31 @@ versions:
         optional: true
       - name: sccs
         type: list(string)
-        description: The list of sccs that should be generated for the service account (valid values are anyuid and privileged)
+        description: >-
+          The list of sccs that should be generated for the service account
+          (valid values are anyuid and privileged)
         default: []
         optional: true
     version: v1.3.0
     outputs:
       - name: name
-        description: output "name" {   value = var.name   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "name" {   value = var.name   depends_on =
+          [null_resource.setup_gitops] }
       - name: namespace
-        description: output "namespace" {   value = var.namespace   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "namespace" {   value = var.namespace   depends_on =
+          [null_resource.setup_gitops] }
   - platforms: []
     dependencies:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
     variables:
       - name: gitops_config
         moduleRef:
@@ -1177,25 +1357,31 @@ versions:
         optional: true
       - name: sccs
         type: list(string)
-        description: The list of sccs that should be generated for the service account (valid values are anyuid and privileged)
+        description: >-
+          The list of sccs that should be generated for the service account
+          (valid values are anyuid and privileged)
         default: []
         optional: true
     version: v1.2.0
     outputs:
       - name: name
-        description: output "name" {   value = var.name   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "name" {   value = var.name   depends_on =
+          [null_resource.setup_gitops] }
       - name: namespace
-        description: output "namespace" {   value = var.namespace   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "namespace" {   value = var.namespace   depends_on =
+          [null_resource.setup_gitops] }
   - platforms: []
     dependencies:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
     variables:
       - name: gitops_config
         moduleRef:
@@ -1286,19 +1472,23 @@ versions:
     version: v1.1.0
     outputs:
       - name: name
-        description: output "name" {   value = var.name   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "name" {   value = var.name   depends_on =
+          [null_resource.setup_gitops] }
       - name: namespace
-        description: output "namespace" {   value = var.namespace   depends_on = [null_resource.setup_gitops] }
+        description: >-
+          output "namespace" {   value = var.namespace   depends_on =
+          [null_resource.setup_gitops] }
   - platforms: []
     dependencies:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
     variables:
       - name: config_repo
         moduleRef:
@@ -1369,27 +1559,31 @@ versions:
     version: v1.0.0
     outputs:
       - name: name
-        description: output "name" {   value = var.name   depends_on = [null_resource.setup_argocd] }
+        description: >-
+          output "name" {   value = var.name   depends_on =
+          [null_resource.setup_argocd] }
       - name: namespace
-        description: output "namespace" {   value = var.namespace   depends_on = [null_resource.setup_argocd] }
+        description: >-
+          output "namespace" {   value = var.namespace   depends_on =
+          [null_resource.setup_argocd] }
   - platforms: []
     dependencies:
       - id: gitops
         refs:
           - source: github.com/cloud-native-toolkit/terraform-tools-gitops.git
-            version: ">= 1.1.0"
+            version: '>= 1.1.0'
       - id: cluster
         refs:
           - source: github.com/ibm-garage-cloud/terraform-ibm-container-platform
-            version: ">= 1.7.0"
+            version: '>= 1.7.0'
           - source: github.com/ibm-garage-cloud/terraform-ibm-ocp-vpc
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
           - source: github.com/ibm-garage-cloud/terraform-k8s-ocp-cluster
-            version: ">= 2.0.0"
+            version: '>= 2.0.0'
       - id: namespace
         refs:
           - source: github.com/cloud-native-toolkit/terraform-gitops-namespace.git
-            version: ">= 1.0.0"
+            version: '>= 1.0.0'
     variables:
       - name: config_repo
         moduleRef:
@@ -1466,7 +1660,7 @@ versions:
           output: platform.tls_secret
         type: string
         description: The name of the secret containing the tls certificate values
-        default: ""
+        default: ''
         optional: true
       - name: namespace
         moduleRef:
