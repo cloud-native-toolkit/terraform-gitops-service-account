@@ -83,6 +83,14 @@ variable "rbac_rules" {
   default     = []
 }
 
+variable "rbac_roles" {
+  type        = list(object({
+    name      = string
+  }))
+  description = "List of existing roles or cluster roles for which a role binding should be created to this service account "
+  default     = []
+}
+
 variable "rbac_cluster_scope" {
   type        = bool
   description = "Flag indicating that RBAC should be created as ClusterRole and ClusterRoleBinding instead of Role and RoleBinding"

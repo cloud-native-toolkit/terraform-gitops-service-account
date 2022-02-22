@@ -65,7 +65,7 @@ resource null_resource setup_gitops {
 }
 
 module "rbac" {
-  source = "github.com/cloud-native-toolkit/terraform-gitops-rbac.git?ref=v1.7.1"
+  source = "github.com/cloud-native-toolkit/terraform-gitops-rbac.git?ref=v1.8.1"
   depends_on = [null_resource.setup_gitops]
 
   gitops_config             = var.gitops_config
@@ -76,10 +76,11 @@ module "rbac" {
   rules                     = var.rbac_rules
   server_name               = var.server_name
   cluster_scope             = var.rbac_cluster_scope
+  roles                     = var.rbac_roles
 }
 
 module "sccs" {
-  source = "github.com/cloud-native-toolkit/terraform-gitops-sccs.git?ref=v1.2.3"
+  source = "github.com/cloud-native-toolkit/terraform-gitops-sccs.git?ref=v1.3.0"
   depends_on = [null_resource.setup_gitops]
 
   gitops_config = var.gitops_config
