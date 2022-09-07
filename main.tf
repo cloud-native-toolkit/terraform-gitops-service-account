@@ -28,22 +28,45 @@ resource null_resource create_yaml {
   }
 }
 
-resource gitops_module module {
+resource null_resource setup_gitops {
   depends_on = [null_resource.create_yaml]
 
-  name = local.name
-  namespace = var.namespace
-  content_dir = local.yaml_dir
-  server_name = var.server_name
-  layer = local.layer
-  type = local.type
-  config = yamlencode(var.gitops_config)
-  credentials = yamlencode(var.git_credentials)
+  triggers = {
+    name = local.name
+    namespace = var.namespace
+    yaml_dir = local.yaml_dir
+    server_name = var.server_name
+    layer = local.layer
+    type = local.type
+    git_credentials = yamlencode(var.git_credentials)
+    gitops_config   = yamlencode(var.gitops_config)
+    bin_dir = local.bin_dir
+  }
+
+  provisioner "local-exec" {
+    command = "${self.triggers.bin_dir}/igc gitops-module '${self.triggers.name}' -n '${self.triggers.namespace}' --contentDir '${self.triggers.yaml_dir}' --serverName '${self.triggers.server_name}' -l '${self.triggers.layer}' --type '${self.triggers.type}'"
+
+    environment = {
+      GIT_CREDENTIALS = nonsensitive(self.triggers.git_credentials)
+      GITOPS_CONFIG   = self.triggers.gitops_config
+      IGNORE_DIFF     = jsonencode(local.ignore_diff)
+    }
+  }
+
+  provisioner "local-exec" {
+    when = destroy
+    command = "${self.triggers.bin_dir}/igc gitops-module '${self.triggers.name}' -n '${self.triggers.namespace}' --delete --contentDir '${self.triggers.yaml_dir}' --serverName '${self.triggers.server_name}' -l '${self.triggers.layer}' --type '${self.triggers.type}' --debug"
+
+    environment = {
+      GIT_CREDENTIALS = nonsensitive(self.triggers.git_credentials)
+      GITOPS_CONFIG   = self.triggers.gitops_config
+    }
+  }
 }
 
 module "rbac" {
-  source = "github.com/cloud-native-toolkit/terraform-gitops-rbac.git?ref=v1.9.1"
-  depends_on = [gitops_module.module]
+  source = "github.com/cloud-native-toolkit/terraform-gitops-rbac.git?ref=v1.8.1"
+  depends_on = [null_resource.setup_gitops]
 
   gitops_config             = var.gitops_config
   git_credentials           = var.git_credentials
@@ -57,8 +80,8 @@ module "rbac" {
 }
 
 module "sccs" {
-  source = "github.com/cloud-native-toolkit/terraform-gitops-sccs.git?ref=v1.4.1"
-  depends_on = [gitops_module.module]
+  source = "github.com/cloud-native-toolkit/terraform-gitops-sccs.git?ref=v1.3.0"
+  depends_on = [null_resource.setup_gitops]
 
   gitops_config = var.gitops_config
   git_credentials = var.git_credentials
