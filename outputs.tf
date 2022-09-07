@@ -1,7 +1,9 @@
 output "name" {
-  value = gitops_module.module.name
+  value = var.name
+  depends_on = [null_resource.setup_gitops]
 }
 
 output "namespace" {
-  value = gitops_module.module.namespace
+  value = var.namespace
+  depends_on = [null_resource.setup_gitops]
 }
